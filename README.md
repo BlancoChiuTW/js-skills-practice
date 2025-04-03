@@ -5,10 +5,17 @@
 ## 課程結構
 
 - Lesson 1: JavaScript 基礎技能
-  - Lesson 1-1: 陣列函數 (map/filter/reduce/forEach/includes)
+  - Lesson 1-1: 陣列函數 (map/filter/reduce/forEach/includes/some/every)
+  - Lesson 1-2: 非同步函數 (Callback/Promise/Async/Await)
 
 ## 使用方法
 
 安裝依賴：
 ```bash
 npm install
+```
+
+測試：
+```bash
+npm test
+```
