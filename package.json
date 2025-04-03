@@ -1,0 +1,20 @@
+{
+  "name": "js-skills-practice",
+  "version": "1.0.0",
+  "description": "JavaScript 技能練習與測試",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "javascript",
+    "testing",
+    "practice"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
