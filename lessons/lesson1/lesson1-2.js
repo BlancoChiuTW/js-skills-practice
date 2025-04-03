@@ -9,8 +9,6 @@
  * 這些練習將幫助您理解 JavaScript 非同步處理的歷史演進和最佳實踐。
  */
 
-// =============== 基本練習：Callback 函數 ===============
-
 /**
  * 模擬非同步操作：使用 callback 延遲執行函數
  * @param {number} ms - 延遲的毫秒數
@@ -56,8 +54,6 @@ function getUserArticlesWithCallback(userId, callback) {
 function getArticleCommentsWithCallback(articleId, callback) {
   // 請在此實現函數
 }
-
-// =============== 基本練習：Promise ===============
 
 /**
  * 模擬非同步操作：使用 Promise 延遲執行函數
@@ -105,8 +101,6 @@ function getArticleCommentsWithPromise(articleId) {
   // 請在此實現函數
 }
 
-// =============== 基本練習：Async/Await ===============
-
 /**
  * 使用 async/await 從模擬的 API 獲取使用者資料
  * @param {number} userId - 使用者 ID
@@ -126,7 +120,7 @@ async function getCommentsForUserWithAsync(userId) {
   // 請在此實現函數
 }
 
-// =============== 進階練習：Callback ===============
+// =============== 進階 Callback, Promise, async/await 函數 ===============
 
 /**
  * 使用 callback 實現並行操作
@@ -148,8 +142,6 @@ function getMultipleUsersWithCallback(userIds, callback) {
 function retryOperationWithCallback(operation, maxRetries, callback) {
   // 請在此實現函數
 }
-
-// =============== 進階練習：Promise ===============
 
 /**
  * 使用 Promise.all 實現並行操作
@@ -182,8 +174,6 @@ function promiseWithTimeout(promise, timeoutMs) {
 function retryPromise(promiseFactory, maxRetries) {
   // 請在此實現函數
 }
-
-// =============== 進階練習：Async/Await ===============
 
 /**
  * 使用 async/await 和 Promise.all 實現並行操作
