@@ -1,6 +1,6 @@
 /**
  * Lesson 1-1: JavaScript 陣列函數練習
- * 
+ *
  * 本課程涵蓋以下陣列方法：
  * - map: 將陣列中的每個元素轉換為新的元素
  * - filter: 過濾陣列中符合條件的元素
@@ -17,7 +17,8 @@
  * @return {number[]} - 轉換後的陣列
  */
 function doubleNumbers(numbers) {
-  // 請在此實現函數
+  const result = numbers.map((numbers) => numbers * 2);
+  return result;
 }
 
 /**
@@ -26,7 +27,8 @@ function doubleNumbers(numbers) {
  * @return {number[]} - 只包含偶數的陣列
  */
 function filterEvenNumbers(numbers) {
-  // 請在此實現函數
+  const result = numbers.filter((numbers) => numbers % 2 === 0);
+  return result;
 }
 
 /**
@@ -35,7 +37,11 @@ function filterEvenNumbers(numbers) {
  * @return {number} - 總和
  */
 function sumNumbers(numbers) {
-  // 請在此實現函數
+  const result = numbers.reduce(
+    (accumulator, currentValue) => accumulator + currentValue,
+    0
+  );
+  return result;
 }
 
 /**
@@ -44,7 +50,11 @@ function sumNumbers(numbers) {
  * @return {string[]} - 轉換為大寫的陣列
  */
 function convertToUpperCase(strings) {
-  // 請在此實現函數
+  const result = [];
+  strings.forEach((string) => {
+    result.push(string.toUpperCase());
+  });
+  return result;
 }
 
 /**
@@ -54,7 +64,7 @@ function convertToUpperCase(strings) {
  * @return {boolean} - 是否包含該元素
  */
 function containsElement(array, element) {
-  // 請在此實現函數
+  return array.includes(element);
 }
 
 /**
@@ -64,7 +74,7 @@ function containsElement(array, element) {
  * @return {boolean} - 是否至少有一個元素符合條件
  */
 function someElement(array, predicate) {
-  // 請在此實現函數
+  return array.some(predicate);
 }
 
 /**
@@ -74,7 +84,7 @@ function someElement(array, predicate) {
  * @return {boolean} - 是否所有元素都符合條件
  */
 function everyElement(array, predicate) {
-  // 請在此實現函數
+  return array.every(predicate);
 }
 
 // =============== 進階陣列函數 ===============
@@ -85,7 +95,18 @@ function everyElement(array, predicate) {
  * @return {Object[]} - 轉換後的使用者資訊陣列
  */
 function transformUserData(users) {
-  // 請在此實現函數
+  return users.map((user) => {
+    return {
+      fullName: `${user.firstName} ${user.lastName}`.trim(),
+      age: user.age,
+      isAdult: user.age >= 18,
+      hobbies: user.hobbies ? user.hobbies.join(", ") : "None",
+      contactInfo: {
+        email: user.email || "N/A",
+        phone: user.phone || "N/A",
+      },
+    };
+  });
 }
 
 /**
@@ -95,7 +116,18 @@ function transformUserData(users) {
  * @return {Object[]} - 符合條件的產品陣列
  */
 function filterProducts(products, criteria) {
-  // 請在此實現函數
+  return products.filter((product) => {
+    return Object.entries(criteria).every(([key, value]) => {
+      if (key === "price") {
+        const { min = -Infinity, max = Infinity } = value;
+        return product.price >= min && product.price <= max;
+      }
+      if (key === "categories") {
+        return value.some((category) => product.categories.includes(category));
+      }
+      return product[key] === value;
+    });
+  });
 }
 
 /**
@@ -105,7 +137,21 @@ function filterProducts(products, criteria) {
  * @return {Object} - 包含小計、稅金、折扣和總計的物件
  */
 function calculateCartTotal(cartItems, taxRate = 0.1) {
-  // 請在此實現函數
+  const result = { subtotal: 0, tax: 0, discount: 0, total: 0 };
+
+  if (cartItems && cartItems.length > 0) {
+    cartItems.forEach((item) => {
+      const itemTotal = item.price * item.quantity;
+      const itemDiscount = itemTotal * (item.discount || 0);
+
+      result.subtotal += itemTotal;
+      result.discount += itemDiscount;
+    });
+
+    result.tax = Math.round((result.subtotal - result.discount) * taxRate);
+    result.total = result.subtotal - result.discount + result.tax;
+  }
+  return result;
 }
 
 /**
@@ -114,7 +160,32 @@ function calculateCartTotal(cartItems, taxRate = 0.1) {
  * @return {Object} - 包含統計資訊的物件
  */
 function analyzeNestedData(nestedData) {
-  // 請在此實現函數
+  const result = {
+    flatArray: [],
+    sum: 0,
+    average: 0,
+    min: Number.MAX_SAFE_INTEGER,
+    max: Number.MIN_SAFE_INTEGER,
+    countsByValue: {},
+  };
+  nestedData.forEach((subArray) => {
+    subArray.forEach((num) => {
+      result.flatArray.push(num);
+      result.sum += num;
+      if (num < result.min) {
+        result.min = num;
+      }
+      if (num > result.max) {
+        result.max = num;
+      }
+      const key = String(num);
+      result.countsByValue[key] = (result.countsByValue[key] || 0) + 1;
+    });
+  });
+  if (result.flatArray.length > 0) {
+    result.average = result.sum / result.flatArray.length;
+  }
+  return result;
 }
 
 /**
@@ -123,7 +194,30 @@ function analyzeNestedData(nestedData) {
  * @return {Object} - 按類別分組並彙總的結果
  */
 function groupAndSummarizeTransactions(transactions) {
-  // 請在此實現函數
+  const grouped = transactions.reduce((result, transaction) => {
+    const { category, amount } = transaction;
+    result[category] = result[category] || {
+      count: 0,
+      totalAmount: 0,
+      amounts: [],
+      recentTransactions: [],
+    };
+    result[category].count += 1;
+    result[category].totalAmount += amount;
+    result[category].amounts.push(amount);
+    result[category].recentTransactions.push(transaction);
+    return result;
+  }, {});
+  Object.keys(grouped).forEach((category) => {
+    const group = grouped[category];
+    group.averageAmount = group.totalAmount / group.count;
+    group.minAmount = Math.min(...group.amounts);
+    group.maxAmount = Math.max(...group.amounts);
+    group.recentTransactions.sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    );
+  });
+  return grouped;
 }
 
 /**
@@ -150,5 +244,5 @@ module.exports = {
   calculateCartTotal,
   analyzeNestedData,
   groupAndSummarizeTransactions,
-  checkItemsWithCriteria
+  checkItemsWithCriteria,
 };
