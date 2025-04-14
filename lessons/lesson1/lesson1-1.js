@@ -108,6 +108,7 @@ function calculateCartTotal(cartItems, taxRate = 0.1) {
   // 請在此實現函數
 }
 
+
 /**
  * 使用 forEach 和其他方法處理巢狀陣列並進行資料統計
  * @param {Array[]} nestedData - 巢狀數字陣列
@@ -136,7 +137,7 @@ function checkItemsWithCriteria(items, criteria) {
   // 請在此實現函數
 }
 
-module.exports = {
+export {
   doubleNumbers,
   filterEvenNumbers,
   sumNumbers,

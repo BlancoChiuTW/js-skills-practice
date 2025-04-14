@@ -216,7 +216,7 @@ function getUserProfileWithPromise(userId) {
   // 請在此實現函數
 }
 
-module.exports = {
+export {
   delayWithCallback,
   getUserDataWithCallback,
   getCommentsForUserWithCallback,
