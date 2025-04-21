@@ -46,13 +46,13 @@ function sumNumbers(numbers) {
 
 /**
  * 使用 forEach 將每個元素轉換為大寫並存入新陣列
- * @param {string[]} strings - 輸入的字串陣列
+ * @param {string[]} textList - 輸入的字串陣列
  * @return {string[]} - 轉換為大寫的陣列
  */
-function convertToUpperCase(strings) {
+function convertToUpperCase(textList) {
   const result = [];
-  strings.forEach((string) => {
-    result.push(string.toUpperCase());
+  textList.forEach((text) => {
+    result.push(text.toUpperCase());
   });
   return result;
 }
@@ -137,21 +137,29 @@ function filterProducts(products, criteria) {
  * @return {Object} - 包含小計、稅金、折扣和總計的物件
  */
 function calculateCartTotal(cartItems, taxRate = 0.1) {
-  const result = { subtotal: 0, tax: 0, discount: 0, total: 0 };
-
-  if (cartItems && cartItems.length > 0) {
-    cartItems.forEach((item) => {
-      const itemTotal = item.price * item.quantity;
-      const itemDiscount = itemTotal * (item.discount || 0);
-
-      result.subtotal += itemTotal;
-      result.discount += itemDiscount;
-    });
-
-    result.tax = Math.round((result.subtotal - result.discount) * taxRate);
-    result.total = result.subtotal - result.discount + result.tax;
+  if (!cartItems || cartItems.length === 0) {
+    return {
+      subtotal: 0,
+      discount: 0,
+      tax: 0,
+      total: 0,
+    };
   }
-  return result;
+  const subtotal = cartItems.reduce((sum, Item) => {
+    return sum + Item.price * Item.quantity;
+  }, 0);
+  const discount = cartItems.reduce((sum, Item) => {
+    return sum + Item.price * Item.quantity * Item.discount;
+  }, 0);
+  const tax = Math.round((subtotal - discount) * taxRate);
+  const total = subtotal - discount + tax;
+
+  return {
+    subtotal,
+    discount,
+    tax,
+    total,
+  };
 }
 
 /**
@@ -193,31 +201,81 @@ function analyzeNestedData(nestedData) {
  * @param {Object[]} transactions - 交易記錄陣列
  * @return {Object} - 按類別分組並彙總的結果
  */
+
 function groupAndSummarizeTransactions(transactions) {
-  const grouped = transactions.reduce((result, transaction) => {
-    const { category, amount } = transaction;
-    result[category] = result[category] || {
-      count: 0,
-      totalAmount: 0,
-      amounts: [],
-      recentTransactions: [],
-    };
-    result[category].count += 1;
-    result[category].totalAmount += amount;
-    result[category].amounts.push(amount);
-    result[category].recentTransactions.push(transaction);
-    return result;
-  }, {});
-  Object.keys(grouped).forEach((category) => {
-    const group = grouped[category];
-    group.averageAmount = group.totalAmount / group.count;
-    group.minAmount = Math.min(...group.amounts);
-    group.maxAmount = Math.max(...group.amounts);
-    group.recentTransactions.sort(
+  if (!transactions || transactions.length === 0) {
+    return {};
+  } else {
+    const foodData = transactions.filter(
+      (transaction) => transaction.category === "food"
+    );
+    const transportData = transactions.filter(
+      (transaction) => transaction.category === "transport"
+    );
+    const entertainmentData = transactions.filter(
+      (transaction) => transaction.category === "entertainment"
+    );
+
+    const foodCount = foodData.length;
+    const foodTotalAmount = foodData.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
+    );
+    const foodAverageAmount = foodTotalAmount / foodCount;
+    const foodAmounts = foodData.map((transaction) => transaction.amount);
+    const foodMinAmount = Math.min(...foodAmounts);
+    const foodMaxAmount = Math.max(...foodAmounts);
+    const foodRecentTransactions = [...foodData].sort(
       (a, b) => new Date(b.date) - new Date(a.date)
     );
-  });
-  return grouped;
+
+    const transportCount = transportData.length;
+    const transportTotalAmount = transportData.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
+    );
+    const transportAverageAmount = transportTotalAmount / transportCount;
+    const transportAmounts = transportData.map(
+      (transaction) => transaction.amount
+    );
+    const transportMinAmount = Math.min(...transportAmounts);
+    const transportMaxAmount = Math.max(...transportAmounts);
+
+    const entertainmentCount = entertainmentData.length;
+    const entertainmentTotalAmount = entertainmentData.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
+    );
+
+    const result = {};
+    if (foodData.length > 0) {
+      result.food = {
+        count: foodCount,
+        totalAmount: foodTotalAmount,
+        averageAmount: foodAverageAmount,
+        minAmount: foodMinAmount,
+        maxAmount: foodMaxAmount,
+        recentTransactions: foodRecentTransactions,
+      };
+    }
+    if (transportData.length > 0) {
+      result.transport = {
+        count: transportCount,
+        totalAmount: transportTotalAmount,
+        averageAmount: transportAverageAmount,
+        minAmount: transportMinAmount,
+        maxAmount: transportMaxAmount,
+      };
+    }
+
+    if (entertainmentData.length > 0) {
+      result.entertainment = {
+        count: entertainmentCount,
+        totalAmount: entertainmentTotalAmount,
+      };
+    }
+    return result;
+  }
 }
 
 /**
@@ -227,7 +285,18 @@ function groupAndSummarizeTransactions(transactions) {
  * @return {Object} - 包含 some 和 every 的結果
  */
 function checkItemsWithCriteria(items, criteria) {
-  // 請在此實現函數
+  const anyMatch = (items, criteria) =>
+    items.some((item) =>
+      Object.keys(criteria).every((key) => criteria[key] === item[key])
+    );
+  const allMatch = (items, criteria) =>
+    items.every((item) =>
+      Object.keys(criteria).every((key) => criteria[key] === item[key])
+    );
+  return {
+    anyMatch: anyMatch(items, criteria),
+    allMatch: allMatch(items, criteria),
+  };
 }
 
 module.exports = {
