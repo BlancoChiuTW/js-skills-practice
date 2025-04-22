@@ -1,11 +1,11 @@
 /**
  * Lesson 1-2: JavaScript 非同步操作練習
- * 
+ *
  * 本課程涵蓋 JavaScript 非同步處理的三種主要方式：
  * 1. Callback 函數
  * 2. Promise 物件
  * 3. Async/Await 語法
- * 
+ *
  * 這些練習將幫助您理解 JavaScript 非同步處理的歷史演進和最佳實踐。
  */
 
@@ -15,7 +15,7 @@
  * @param {function} callback - 延遲後要執行的回調函數
  */
 function delayWithCallback(ms, callback) {
-  // 請在此實現函數
+  setTimeout(callback, ms);
 }
 
 /**
@@ -24,26 +24,36 @@ function delayWithCallback(ms, callback) {
  * @param {function} callback - 處理結果的回調函數，格式為 callback(error, data)
  */
 function getUserDataWithCallback(userId, callback) {
-  // 請在此實現函數
+  setTimeout(() => {
+    if (userId === 1) {
+      callback(null, {
+        id: 1,
+        name: "Alice",
+        email: "alice@example.com",
+      });
+    } else {
+      callback(new Error(`找不到${userId}的使用者`), null);
+    }
+  },100);
 }
-
-/**
- * 使用 callback 處理多個非同步操作（回調地獄示例）
- * 依次獲取：使用者 -> 使用者的文章 -> 文章的評論
- * @param {number} userId - 使用者 ID
- * @param {function} callback - 最終的回調函數，格式為 callback(error, data)
- */
-function getCommentsForUserWithCallback(userId, callback) {
-  // 請在此實現函數
-}
-
 /**
  * 輔助函數：使用 callback 獲取使用者的文章
  * @param {number} userId - 使用者 ID
  * @param {function} callback - 回調函數，格式為 callback(error, data)
  */
 function getUserArticlesWithCallback(userId, callback) {
-  // 請在此實現函數
+  setTimeout(() => {
+    if (userId === 1) {
+      callback(null, {
+        id: 101,
+        title: "如何使用 Callbacks",
+        content: "這是一篇關於 callbacks 的文章",
+        userId: 1,
+      });
+    } else {
+      callback(new Error(`找不到${userId}的使用者的文章`), null);
+    }
+  }, 100);
 }
 
 /**
@@ -52,7 +62,40 @@ function getUserArticlesWithCallback(userId, callback) {
  * @param {function} callback - 回調函數，格式為 callback(error, data)
  */
 function getArticleCommentsWithCallback(articleId, callback) {
-  // 請在此實現函數
+  setTimeout(() => {
+    if (articleId === 101) {
+      callback(null, [
+        { id: 1001, text: "很棒的文章!", articleId: 101 },
+        { id: 1002, text: "謝謝分享!", articleId: 101 },
+      ]);
+    } else {
+      callback(new Error(`找不到${articleId}的文章的評論`), null);
+    }
+  },100);
+}
+/**
+ * 使用 callback 處理多個非同步操作（回調地獄示例）
+ * 依次獲取：使用者 -> 使用者的文章 -> 文章的評論
+ * @param {number} userId - 使用者 ID
+ * @param {function} callback - 最終的回調函數，格式為 callback(error, data)
+ */
+function getCommentsForUserWithCallback(userId, callback) {
+  setTimeout(() => {
+    if (userId !== 1) {
+      return callback(new Error(`找不到${userId}的使用者`), null);
+    }
+    const user = { id: 1, name: "User 1" };
+    setTimeout(() => {
+      const article = { id: 101, title: "Article Title", userId: 1 };
+      setTimeout(() => {
+        const comments = [
+          { id: 1001, text: "Comment 1" },
+          { id: 1002, text: "Comment 2" },
+        ];
+        callback(null, { user, article, comments });
+      }, 10);
+    }, 10);
+  }, 10);
 }
 
 /**
@@ -238,5 +281,5 @@ module.exports = {
   getUsersAndArticlesWithAsync,
   getUserWithTimeoutAndRetry,
   getUserCompleteProfile,
-  getUserProfileWithPromise
+  getUserProfileWithPromise,
 };
