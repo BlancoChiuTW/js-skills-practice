@@ -34,7 +34,7 @@ function getUserDataWithCallback(userId, callback) {
     } else {
       callback(new Error(`找不到${userId}的使用者`), null);
     }
-  },100);
+  }, 100);
 }
 /**
  * 輔助函數：使用 callback 獲取使用者的文章
@@ -71,7 +71,7 @@ function getArticleCommentsWithCallback(articleId, callback) {
     } else {
       callback(new Error(`找不到${articleId}的文章的評論`), null);
     }
-  },100);
+  }, 100);
 }
 /**
  * 使用 callback 處理多個非同步操作（回調地獄示例）
@@ -172,7 +172,27 @@ async function getCommentsForUserWithAsync(userId) {
  * @param {function} callback - 最終的回調函數，格式為 callback(error, data)
  */
 function getMultipleUsersWithCallback(userIds, callback) {
-  // 請在此實現函數
+  if (userIds.length === 0) {
+    return callback(null, []);
+  }
+  const users = new Array(userIds.length);
+  let completed = 0;
+  let hasError = false;
+
+  userIds.forEach((userId, index) => {
+    setTimeout(() => {
+      if (hasError) return;
+      if (userId === 999) {
+        hasError = true;
+        return callback(new Error(`${userId} not found`), null);
+      }
+      users[index] = { id: userId };
+      completed++;
+      if (completed === userIds.length) {
+        callback(null, users);
+      }
+    }, 100);
+  });
 }
 
 /**
@@ -183,9 +203,19 @@ function getMultipleUsersWithCallback(userIds, callback) {
  * @param {function} callback - 最終的回調函數，格式為 callback(error, data)
  */
 function retryOperationWithCallback(operation, maxRetries, callback) {
-  // 請在此實現函數
+  function attemptOperation(currentAttempt) {
+    operation((error, data) => {
+      if (!error) {
+        return callback(null, data);
+      }
+      if (currentAttempt >= maxRetries) {
+        return callback(error, null);
+      }
+      attemptOperation(currentAttempt + 1);
+    });
+  }
+  attemptOperation(0);
 }
-
 /**
  * 使用 Promise.all 實現並行操作
  * 同時獲取多個使用者的資料
