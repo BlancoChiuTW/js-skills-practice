@@ -104,7 +104,9 @@ function getCommentsForUserWithCallback(userId, callback) {
  * @return {Promise} - 延遲指定時間後 resolve 的 Promise
  */
 function delayWithPromise(ms) {
-  // 請在此實現函數
+  return new Promise(function (resolve) {
+    setTimeout(resolve, ms);
+  });
 }
 
 /**
@@ -113,7 +115,18 @@ function delayWithPromise(ms) {
  * @return {Promise} - 包含使用者資料的 Promise
  */
 function getUserDataWithPromise(userId) {
-  // 請在此實現函數
+  return new Promise(function (resolve, reject) {
+    if (userId === 999) {
+      reject(new Error(`找不到${userId}使用者`));
+    }
+    if (userId) {
+      resolve({
+        id: 1,
+        name: "Alice",
+        email: "alice@example.com",
+      });
+    }
+  });
 }
 
 /**
@@ -123,7 +136,17 @@ function getUserDataWithPromise(userId) {
  * @return {Promise} - 包含使用者、文章和評論資料的 Promise
  */
 function getCommentsForUserWithPromise(userId) {
-  // 請在此實現函數
+  return new Promise(function (resolve, reject) {
+    if (userId === 999) {
+      reject(new Error(`找不到${userId}使用者`));
+    } else if (userId) {
+      resolve({
+        user: { id: userId },
+        article: { userId: userId },
+        comments: [],
+      });
+    }
+  });
 }
 
 /**
@@ -223,7 +246,20 @@ function retryOperationWithCallback(operation, maxRetries, callback) {
  * @return {Promise} - 包含所有使用者資料的 Promise
  */
 function getMultipleUsersWithPromise(userIds) {
-  // 請在此實現函數
+  if (userIds.length === 0) {
+    return Promise.resolve([]);
+  }
+  const promise = userIds.map((userId) => {
+    return new Promise((resolve, reject) => {
+      if (userId === 999) {
+        reject(new Error(`找不到${userId}使用者`));
+      }
+      if (userId) {
+        resolve({ id: userId });
+      }
+    });
+  });
+  return Promise.all(promise);
 }
 
 /**
