@@ -155,7 +155,17 @@ function getCommentsForUserWithPromise(userId) {
  * @return {Promise} - 包含文章資料的 Promise
  */
 function getUserArticlesWithPromise(userId) {
-  // 請在此實現函數
+  return new Promise(function (resolve, reject) {
+    if (userId === 999) {
+      reject(new Error(`找不到${userId}使用者`));
+    } else if (userId) {
+      resolve({
+        user: { id: userId },
+        article: { userId: userId },
+        comments: [],
+      });
+    }
+  });
 }
 
 /**
@@ -164,7 +174,17 @@ function getUserArticlesWithPromise(userId) {
  * @return {Promise} - 包含評論資料的 Promise
  */
 function getArticleCommentsWithPromise(articleId) {
-  // 請在此實現函數
+  return new Promise(function (resolve, reject) {
+    if (articleId === 999) {
+      reject(new Error(`找不到${articleId}文章`));
+    } else if (articleId) {
+      resolve({
+        user: { id: userId },
+        article: { userId: userId },
+        comments: [],
+      });
+    }
+  });
 }
 
 /**
@@ -270,7 +290,13 @@ function getMultipleUsersWithPromise(userIds) {
  * @return {Promise} - 原始 Promise 或超時拒絕
  */
 function promiseWithTimeout(promise, timeoutMs) {
-  // 請在此實現函數
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`操作超時，超過 ${timeoutMs} 毫秒`));
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]);
 }
 
 /**
@@ -281,7 +307,20 @@ function promiseWithTimeout(promise, timeoutMs) {
  * @return {Promise} - 執行結果的 Promise
  */
 function retryPromise(promiseFactory, maxRetries) {
-  // 請在此實現函數
+  function tryOption(trycount) {
+    return promiseFactory()
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        if (trycount <= 0) {
+          throw error;
+        } else {
+          return tryOption(trycount - 1);
+        }
+      });
+  }
+  return tryOption(maxRetries);
 }
 
 /**
