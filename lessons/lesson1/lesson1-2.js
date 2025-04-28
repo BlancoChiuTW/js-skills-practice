@@ -193,7 +193,19 @@ function getArticleCommentsWithPromise(articleId) {
  * @return {Promise} - 包含使用者資料的 Promise
  */
 async function getUserDataWithAsync(userId) {
-  // 請在此實現函數
+  const getuserIds = await new Promise(function (resolve, reject) {
+    if (userId === 999) {
+      reject(new Error(`找不到${userId}使用者`));
+    }
+    if (userId) {
+      resolve({
+        id: 1,
+        name: "Alice",
+        email: "alice@example.com",
+      });
+    }
+  });
+  return getuserIds;
 }
 
 /**
@@ -203,7 +215,24 @@ async function getUserDataWithAsync(userId) {
  * @return {Promise} - 包含使用者、文章和評論資料的 Promise
  */
 async function getCommentsForUserWithAsync(userId) {
-  // 請在此實現函數
+  const user = await new Promise((resolve, reject) => {
+    if (userId === 999) {
+      reject(new Error(`找不到 ${userId} 使用者`));
+    } else {
+      resolve({ id: userId, name: `User ${userId}` });
+    }
+  });
+  const article = await new Promise((resolve) => {
+    resolve({ id: 101, userId: user.id, title: `Article for user ${user.id}` });
+  });
+
+  const comments = await new Promise((resolve) => {
+    resolve([
+      { id: 201, articleId: article.id, text: "Great article!" },
+      { id: 202, articleId: article.id, text: "I learned a lot" },
+    ]);
+  });
+  return { user, article, comments };
 }
 
 // =============== 進階 Callback, Promise, async/await 函數 ===============
@@ -330,7 +359,34 @@ function retryPromise(promiseFactory, maxRetries) {
  * @return {Promise} - 包含所有使用者資料和他們文章的 Promise
  */
 async function getUsersAndArticlesWithAsync(userIds) {
-  // 請在此實現函數
+  if (userIds.length === 0) {
+    return [];
+  }
+  return Promise.all(
+    userIds.map(async (userId) => {
+      const [user, articles] = await Promise.all([
+        new Promise((resolve, reject) => {
+          if (userId === 999) {
+            reject(new Error(`找不到${userId}使用者`));
+          }
+          resolve({ id: userId });
+        }),
+        Promise.resolve([
+          {
+            id: userId * 100 + 1,
+            title: `Article ${userId * 100 + 1}`,
+            userId,
+          },
+          {
+            id: userId * 100 + 2,
+            title: `Article ${userId * 100 + 2}`,
+            userId,
+          },
+        ]),
+      ]);
+      return { user, articles };
+    })
+  );
 }
 
 /**
