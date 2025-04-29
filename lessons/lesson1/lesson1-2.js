@@ -225,7 +225,6 @@ async function getCommentsForUserWithAsync(userId) {
   const article = await new Promise((resolve) => {
     resolve({ id: 101, userId: user.id, title: `Article for user ${user.id}` });
   });
-
   const comments = await new Promise((resolve) => {
     resolve([
       { id: 201, articleId: article.id, text: "Great article!" },
@@ -398,7 +397,31 @@ async function getUsersAndArticlesWithAsync(userIds) {
  * @return {Promise} - 操作結果的 Promise
  */
 async function getUserWithTimeoutAndRetry(userId, timeoutMs, maxRetries) {
-  // 請在此實現函數
+  async function fetchUserWithTimeout() {
+    return Promise.race([
+      (async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        if (userId === 1) return { id: 1, name: "Alice" };
+        throw new Error(`找不到${userId}的用戶`);
+      })(),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`請求超時 (${timeoutMs}ms)`)),
+          timeoutMs
+        )
+      ),
+    ]);
+  }
+  async function retry(fn, retriesLeft) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (retriesLeft <= 0) throw error;
+      return retry(fn, retriesLeft - 1);
+    }
+  }
+
+  return retry(fetchUserWithTimeout, maxRetries);
 }
 
 /**
@@ -408,9 +431,50 @@ async function getUserWithTimeoutAndRetry(userId, timeoutMs, maxRetries) {
  * @return {Promise} - 包含使用者完整資料的 Promise
  */
 async function getUserCompleteProfile(userId) {
-  // 請在此實現函數
+  try {
+    async function getUser(userId) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      if (userId === 1) {
+        return { id: 1, name: "Alice" };
+      }
+      throw new Error(`找不到 ID 為 ${userId} 的使用者`);
+    }
+    async function getUserArticles(userId) {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      if (userId === 1) {
+        return [
+          { id: 101, title: "文章1", content: "內容1" },
+          { id: 102, title: "文章2", content: "內容2" },
+        ];
+      }
+      throw new Error(`找不到 ID 為 ${userId} 的使用者文章`);
+    }
+    async function getUserProfile(userId) {
+      await new Promise((resolve) => setTimeout(resolve, 120));
+      if (userId === 1) {
+        return {
+          bio: "Alice 的個人簡介",
+          location: "台北",
+          joinDate: "2020-01-01",
+        };
+      }
+      throw new Error(`找不到 ID 為 ${userId} 的使用者個人資料`);
+    }
+    const user = await getUser(userId);
+    const [articles, profile] = await Promise.all([
+      getUserArticles(userId),
+      getUserProfile(userId),
+    ]);
+    return {
+      id: user.id,
+      name: user.name,
+      articles: articles,
+      profile: profile
+        };
+  } catch (error) {
+    throw error;
+  }
 }
-
 /**
  * 輔助函數：使用 Promise 獲取使用者的個人資料
  * @param {number} userId - 使用者 ID
