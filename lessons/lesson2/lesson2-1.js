@@ -56,6 +56,17 @@ function createUserData(initialData = {}) {
  * @return {Object} - 包含購物車狀態和計算屬性的對象
  */
 function createShoppingCart() {
+  const items = ref([]);
+  const total = computed(() => {
+    return items.value.reduce((sum, item) => {
+      return sum + item.price * item.quantity;
+    }, 0);
+  });
+  const itemCount = computed(() => {
+    return items.value.reduce((count, item) => {
+      return count + item.quantity;
+    }, 0);
+  });
 }
 
 /**
