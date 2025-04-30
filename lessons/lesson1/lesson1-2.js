@@ -455,7 +455,6 @@ async function getUserCompleteProfile(userId) {
         return {
           bio: "Alice 的個人簡介",
           location: "台北",
-          joinDate: "2020-01-01",
         };
       }
       throw new Error(`找不到 ID 為 ${userId} 的使用者個人資料`);
