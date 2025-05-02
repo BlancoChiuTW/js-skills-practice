@@ -15,6 +15,7 @@
 import { ref, reactive, computed } from "vue";
 function createCounter() {
   const count = ref(0);
+
   function increment() {
     count.value++;
   }
@@ -57,16 +58,50 @@ function createUserData(initialData = {}) {
  */
 function createShoppingCart() {
   const items = ref([]);
-  const total = computed(() => {
-    return items.value.reduce((sum, item) => {
-      return sum + item.price * item.quantity;
-    }, 0);
-  });
-  const itemCount = computed(() => {
-    return items.value.reduce((count, item) => {
-      return count + item.quantity;
-    }, 0);
-  });
+
+  const total = computed(() =>
+    items.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  );
+
+  const itemCount = computed(() =>
+    items.value.reduce((count, item) => count + item.quantity, 0)
+  );
+
+  const addItem = (newItem) => {
+    const existingItem = items.value.find((item) => item.id === newItem.id);
+
+    if (existingItem) {
+      existingItem.quantity += newItem.quantity || 1;
+    } else {
+      items.value.push({
+        ...newItem,
+        quantity: newItem.quantity || 1,
+      });
+    }
+  };
+
+  const removeItem = (id) => {
+    items.value = items.value.filter((item) => item.id !== id);
+  };
+
+  const updateQuantity = (id, quantity) => {
+    const item = items.value.find((item) => item.id === id);
+    if (item) item.quantity = quantity;
+  };
+
+  const clearCart = () => {
+    items.value = [];
+  };
+
+  return {
+    items,
+    total,
+    itemCount,
+    addItem,
+    removeItem,
+    updateQuantity,
+    clearCart,
+  };
 }
 
 /**
