@@ -12,7 +12,7 @@
  * 創建一個簡單的計數器，使用 ref 管理狀態
  * @return {Object} - 包含計數器狀態和方法的對象
  */
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed ,watch } from "vue";
 function createCounter() {
   const count = ref(0);
 
@@ -109,7 +109,85 @@ function createShoppingCart() {
  * @return {Object} - 包含表單狀態和驗證結果的對象
  */
 function createFormValidator() {
-  // 請在此實現函數
+  // 創建響應式表單數據
+  const form = reactive({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  // 創建響應式錯誤信息
+  const errors = reactive({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  // 表單是否有效的響應式引用
+  const isValid = ref(false);
+
+  // 監聽用戶名變化
+  watch(
+    () => form.username,
+    (newValue) => {
+      if (!newValue) {
+        errors.username = "用戶名不能為空";
+      } else if (newValue.length < 3) {
+        errors.username = "用戶名至少需要3個字符";
+      } else {
+        errors.username = "";
+      }
+      validateForm();
+    },
+    { immediate: true }
+  );
+
+  // 監聽郵箱變化
+  watch(
+    () => form.email,
+    (newValue) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (newValue && !emailRegex.test(newValue)) {
+        errors.email = "請輸入有效的郵箱地址";
+      } else {
+        errors.email = "";
+      }
+      validateForm();
+    }
+  );
+
+  // 監聽密碼變化
+  watch(
+    () => form.password,
+    (newValue) => {
+      if (newValue && newValue.length < 6) {
+        errors.password = "密碼至少需要6個字符";
+      } else {
+        errors.password = "";
+      }
+      validateForm();
+    }
+  );
+
+  // 驗證整個表單
+  function validateForm() {
+    // 表單有效的條件：
+    // 1. 所有字段都有值
+    // 2. 沒有錯誤信息
+    isValid.value =
+      form.username !== "" &&
+      form.email !== "" &&
+      form.password !== "" &&
+      errors.username === "" &&
+      errors.email === "" &&
+      errors.password === "";
+  }
+
+  return {
+    form,
+    errors,
+    isValid,
+  };
 }
 
 /**
