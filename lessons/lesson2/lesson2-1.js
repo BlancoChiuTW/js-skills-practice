@@ -12,7 +12,7 @@
  * 創建一個簡單的計數器，使用 ref 管理狀態
  * @return {Object} - 包含計數器狀態和方法的對象
  */
-import { ref, reactive, computed ,watch } from "vue";
+import { ref, reactive, computed, watch, watchEffect } from "vue";
 function createCounter() {
   const count = ref(0);
 
@@ -109,24 +109,17 @@ function createShoppingCart() {
  * @return {Object} - 包含表單狀態和驗證結果的對象
  */
 function createFormValidator() {
-  // 創建響應式表單數據
   const form = reactive({
     username: "",
     email: "",
     password: "",
   });
-
-  // 創建響應式錯誤信息
   const errors = reactive({
     username: "",
     email: "",
     password: "",
   });
-
-  // 表單是否有效的響應式引用
   const isValid = ref(false);
-
-  // 監聽用戶名變化
   watch(
     () => form.username,
     (newValue) => {
@@ -141,8 +134,6 @@ function createFormValidator() {
     },
     { immediate: true }
   );
-
-  // 監聽郵箱變化
   watch(
     () => form.email,
     (newValue) => {
@@ -155,8 +146,6 @@ function createFormValidator() {
       validateForm();
     }
   );
-
-  // 監聽密碼變化
   watch(
     () => form.password,
     (newValue) => {
@@ -168,12 +157,7 @@ function createFormValidator() {
       validateForm();
     }
   );
-
-  // 驗證整個表單
   function validateForm() {
-    // 表單有效的條件：
-    // 1. 所有字段都有值
-    // 2. 沒有錯誤信息
     isValid.value =
       form.username !== "" &&
       form.email !== "" &&
@@ -182,7 +166,6 @@ function createFormValidator() {
       errors.email === "" &&
       errors.password === "";
   }
-
   return {
     form,
     errors,
@@ -195,7 +178,49 @@ function createFormValidator() {
  * @return {Object} - 包含狀態和方法的對象
  */
 function createAutoSaver() {
-  // 請在此實現函數
+  const content = ref("");
+  const isSaving = ref(false);
+  const lastSaved = ref(null);
+  const saveCount = ref(0);
+
+  function saveContent() {
+    isSaving.value = true;
+    setTimeout(() => {
+      saveCount.value++;
+      lastSaved.value = new Date();
+      isSaving.value = false;
+      console.log("已保存:", content.value);
+    }, 300);
+  }
+  function updateContent(newContent) {
+    content.value = newContent;
+  }
+  const stop = watchEffect(() => {
+    if (content.value) {
+      saveContent();
+    }
+  });
+  function stopWatching() {
+    stop();
+  }
+  return {
+    data: {
+      get content() {
+        return content.value;
+      },
+      get isSaving() {
+        return isSaving.value;
+      },
+      get lastSaved() {
+        return lastSaved.value;
+      },
+      get saveCount() {
+        return saveCount.value;
+      },
+    },
+    updateContent,
+    stopWatching,
+  };
 }
 
 // =============== 進階 Vue 3 ref/reactive/computed/watch/watchEffect ===============
