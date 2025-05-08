@@ -182,7 +182,6 @@ function createAutoSaver() {
   const isSaving = ref(false);
   const lastSaved = ref(null);
   const saveCount = ref(0);
-
   function saveContent() {
     isSaving.value = true;
     setTimeout(() => {
@@ -222,15 +221,99 @@ function createAutoSaver() {
     stopWatching,
   };
 }
-
 // =============== 進階 Vue 3 ref/reactive/computed/watch/watchEffect ===============
 
 /**
  * 進階：組合多個響應式功能，創建一個待辦事項應用
  * @return {Object} - 包含待辦事項應用狀態和方法的對象
  */
+
 function createTodoApp() {
-  // 請在此實現函數
+  const todos = ref([]);
+  const newTodo = ref("");
+  const filter = ref("all");
+  const filteredTodos = computed(() => {
+    switch (filter.value) {
+      case "active":
+        return todos.value.filter((todo) => !todo.completed);
+      case "completed":
+        return todos.value.filter((todo) => todo.completed);
+      default:
+        return todos.value;
+    }
+  });
+  const remainingCount = computed(() => {
+    return todos.value.filter((todo) => !todo.completed).length;
+  });
+  const completedCount = computed(() => {
+    return todos.value.filter((todo) => todo.completed).length;
+  });
+  function addTodo() {
+    const text = newTodo.value.trim();
+    if (text) {
+      todos.value.push({
+        id: Date.now(),
+        text,
+        completed: false,
+        createdAt: new Date().toISOString(),
+      });
+      newTodo.value = "";
+      saveToStorage();
+    }
+  }
+  function toggleTodo(id) {
+    const todo = todos.value.find((todo) => todo.id === id);
+    if (todo) {
+      todo.completed = !todo.completed;
+      saveToStorage();
+    }
+  }
+  function removeTodo(id) {
+    const index = todos.value.findIndex((todo) => todo.id === id);
+    if (index !== -1) {
+      todos.value.splice(index, 1);
+      saveToStorage();
+    }
+  }
+  function setFilter(newFilter) {
+    filter.value = newFilter;
+  }
+  function clearCompleted() {
+    todos.value = todos.value.filter((todo) => !todo.completed);
+    saveToStorage();
+  }
+  function saveToStorage() {
+    localStorage.setItem("todos", JSON.stringify(todos.value));
+  }
+  function loadFromStorage() {
+    const savedTodos = localStorage.getItem("todos");
+    if (savedTodos) {
+      todos.value = JSON.parse(savedTodos);
+    }
+  }
+  watch(
+    todos,
+    () => {
+      saveToStorage();
+    },
+    { deep: true }
+  );
+  loadFromStorage();
+  return {
+    todos,
+    newTodo,
+    filter,
+    filteredTodos,
+    remainingCount,
+    completedCount,
+    addTodo,
+    toggleTodo,
+    removeTodo,
+    setFilter,
+    clearCompleted,
+    saveToStorage,
+    loadFromStorage,
+  };
 }
 
 /**
