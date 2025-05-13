@@ -24,6 +24,12 @@
 npm install
 ```
 
+預覽 VUE 檔案:
+```
+安裝擴充插件「VUE preview」
+在vue檔案內按下 「Ctrl + Alt + P」
+```
+
 測試:
  - 監聽模式:
     ```bash
